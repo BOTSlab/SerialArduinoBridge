@@ -6,6 +6,10 @@
 #define COMMANDS_H
 
 // Added for RTbot control
+#define MSM_READ_ODOMETRY      'o'
+#define MSM_SET_MOTORS         'm'
+
+// Added for RTbot control
 #define RTBOT_READ_ODOMETRY      'o'
 #define RTBOT_SET_MOTORS         'm'
 //#define RTBOT_DRIVE              'v'

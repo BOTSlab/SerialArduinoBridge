@@ -6,11 +6,14 @@
     Andrew Vardy
 */
 
-#define USE_RTBOT      // Enable the RTbot code
-//#undef USE_RTBOT     // Disable the RTbot code
+#define USE_MSM      // Enable the MinSegMega code
+//#undef USE_MSM     // Disable the MinSegMega code
 
-#define USE_STEPPER_INTERRUPT      // Enable the RTbot to utilize interrupts to update stepper_pos_left and stepper_pos_right
-//#undef USE_STEPPER_INTERRUPT     // Disable stepper interrupt code
+//#define USE_RTBOT      // Enable the RTbot code
+#undef USE_RTBOT     // Disable the RTbot code
+
+//#define USE_STEPPER_INTERRUPT      // Enable the RTbot to utilize interrupts to update stepper_pos_left and stepper_pos_right
+#undef USE_STEPPER_INTERRUPT     // Disable stepper interrupt code
 
 //#define USE_ARBOT      // Enable the ARbot code
 #undef USE_ARBOT     // Disable the ARbot code
@@ -62,6 +65,11 @@
 #ifdef USE_SERVOS
    #include <Servo.h>
    #include "servos.h"
+#endif
+
+/* Include MinSegMega support if required */
+#ifdef USE_MSM
+  #include "minsegmega.h"
 #endif
 
 /* Include RTbot support if required */
@@ -179,6 +187,19 @@ int runCommand() {
   case PING:
     Serial.println(Ping(arg1));
     break;
+#ifdef USE_MSM
+  case MSM_READ_ODOMETRY:
+    Serial.print(msmGetX());
+    Serial.print(" ");
+    Serial.print(msmGetY());
+    Serial.print(" ");
+    Serial.println(msmGetTheta());
+    break;
+  case MSM_SET_MOTORS:
+    msmSetMotors(arg1);
+    Serial.println("OK");
+    break;
+#endif
 #ifdef USE_RTBOT
   case RTBOT_READ_ODOMETRY:
     Serial.print(rtbotGetX());
@@ -356,6 +377,11 @@ void loop() {
       }
     }
   }
+
+// If we are using the MinSegMega, run its own required inner loop
+#ifdef USE_MSM
+  msmLoop();
+#endif
   
 // If we are using the RTbot, run its own required inner loop
 #ifdef USE_RTBOT

@@ -313,6 +313,11 @@ void setup() {
   arbotSetup();
 #endif
 
+// Initialize the MinSegMegabot if used */
+#ifdef USE_MSM
+  msmSetup();
+#endif
+
 // Initialize the Pixy if used */
 #ifdef USE_PIXY
   pixy.init();

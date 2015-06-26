@@ -5,10 +5,11 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-// Added for RTbot control
-#define MSM_READ_ODOMETRY      'o'
-#define MSM_SET_MOTORS         'm'
-
+// Added for MinSeg bot control     /*** MinSeg Set Motor Arguments ***/
+#define MSM_READ_ODOMETRY      'o'  /*  Stop    - 0                   */
+#define MSM_SET_MOTORS         'm'  /*  Forward - 1   Turn Left  - 3  */
+                                    /*  Reverse - 2   Turn Right - 4  */
+                                    /**********************************/
 // Added for RTbot control
 #define RTBOT_READ_ODOMETRY      'o'
 #define RTBOT_SET_MOTORS         'm'

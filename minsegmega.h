@@ -8,8 +8,7 @@ long msmGetX();
 long msmGetY();
 long msmGetTheta();
 
-// Set the speeds of the two motors.  For each motor we have a direction and a
-// PWM parameter.
-void msmSetMotors(int leftDir, int leftPWM, int rightDir, int rightPWM);
+// Set the direction of movement
+void msmSetMotors(int dir);
 
 //void msmDrive(int speed, int heading);

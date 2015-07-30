@@ -4,4 +4,4 @@
 #define N_SERVOS 1
 
 Servo servos [N_SERVOS];
-byte servoPins [N_SERVOS] = {10};
+byte servoPins [N_SERVOS] = {3};

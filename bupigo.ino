@@ -1,7 +1,8 @@
-#ifdef USE_MSM
+#ifdef USE_BUPIGO
 
 /** 
- * Code to interact with a MinSegMega connected to two Lego NXT motors.
+ * Code to interact with a BuPiGo which consists of a MinSegMega connected to
+ * two Lego NXT motors.
  */
 
 // Universal constants
@@ -19,18 +20,24 @@ double BASELINE_MM = 103.0;
 double HALF_BASELINE_MM = BASELINE_MM / 2.0;
 
 // Pin ID's for setting motors
-int MOTOR_RIGHT_FORWARD = 44;  // Right motor Forward (M1)
-int MOTOR_RIGHT_BACKWARD = 45; // Right motor Reverse (M2)
-int MOTOR_LEFT_FORWARD = 2;    // Left motor Forward  (M3)
-int MOTOR_LEFT_BACKWARD = 46;  // Left motor Reverse  (M4)
+int MOTOR_LEFT_FORWARD = 44;  // Right motor Forward (M1)
+int MOTOR_LEFT_BACKWARD = 45; // Right motor Reverse (M2)
+int MOTOR_RIGHT_FORWARD = 2;    // Left motor Forward  (M3)
+int MOTOR_RIGHT_BACKWARD = 46;  // Left motor Reverse  (M4)
+
+// Pin ID for servo
+int SERVO_PIN = 3;
+
+// The servo object
+ServoTimer2 servo;
 
 // Current pose represented in metres and radians.
 double x = 0, y = 0, theta = 0;
 
 /*******************  Encoder Variables ********************/
-// Right encoder pins
-int encoderPin_RA = 19;
-int encoderPin_RB = 18;
+// Left encoder pins
+int encoderPin_LA = 19;
+int encoderPin_LB = 18;
 
 // Position tracking variables for left/right encoders
 volatile int encoder_pos_right = 0;
@@ -64,19 +71,22 @@ void updatePose() {
 }
 
 
-long msmGetX() {
+long bupigoGetX() {
     return (long)(x * 1000);
 }
 
-long msmGetY() {
+long bupigoGetY() {
     return (long)(y * 1000);
 }
 
-long msmGetTheta() {
+long bupigoGetTheta() {
     return (long)(theta * 1000);
 }
 
-void msmSetMotors(int dir) {
+void bupigoSetMotors(long dir) {
+  Serial.print("dir: ");
+  Serial.println(dir);
+  
   switch(dir){
     case 0: // Stop
       digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
@@ -110,6 +120,41 @@ void msmSetMotors(int dir) {
       break;
   }
 }
+
+void bupigoSetSpeeds(long leftSpeed, long rightSpeed) {
+  if (leftSpeed >= 0) {   
+    digitalWrite(MOTOR_LEFT_BACKWARD, LOW);
+    analogWrite(MOTOR_LEFT_FORWARD, leftSpeed);
+  } else {
+    digitalWrite(MOTOR_LEFT_FORWARD, LOW);
+    analogWrite(MOTOR_LEFT_BACKWARD, -leftSpeed);
+  }
+
+  if (rightSpeed >= 0) {
+    digitalWrite(MOTOR_RIGHT_BACKWARD, LOW);
+    analogWrite(MOTOR_RIGHT_FORWARD, rightSpeed);
+  } else {
+    digitalWrite(MOTOR_RIGHT_FORWARD, LOW);
+    analogWrite(MOTOR_RIGHT_BACKWARD, -rightSpeed);
+  } 
+}
+
+void bupigoSetVelocity(long forwardSpeed, long angularSpeed) {
+  double v = forwardSpeed; // Forward speed in mm / sec
+  double w = angularSpeed / 1000.0; // Angular speed in radians / sec
+  
+  // Apply differential-drive kinematic model.
+  long leftVelocity = (long)( (v - HALF_BASELINE_MM * w) / WHEEL_RADIUS_MM);
+  long rightVelocity = (long)( (v + HALF_BASELINE_MM * w) / WHEEL_RADIUS_MM);
+
+  bupigoSetSpeeds(leftVelocity, rightVelocity);
+}
+
+void bupigoSetServoAngle(long angle) {
+  // Need to convert to microseconds for ServoTimer2
+  long ms = map(angle, 0, 180, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+  servo.write(ms);
+}  
 
 /******************************************************************************
 
@@ -176,37 +221,40 @@ void doEncoderLB(){
   }
 }
 
-void msmSetup(){
+void bupigoSetup(){
   // Set initial state for right encoder
-  pinMode(encoderPin_RA, INPUT);
-  pinMode(encoderPin_RB, INPUT);
-  RA_state = digitalRead(encoderPin_RA);
-  RB_state = digitalRead(encoderPin_RB);
+  pinMode(encoderPin_LA, INPUT);
+  pinMode(encoderPin_LB, INPUT);
+  LA_state = digitalRead(encoderPin_LA);
+  LB_state = digitalRead(encoderPin_LB);
   
-  // Set initial state for left encoder
+  // Set initial state for right encoder
   // Encoder is attached to unmapped pins E6/E7, hence the low level port manipulation
   DDRE &= 0x3f;
   PORTE |= 0xC0;
-  LA_state = ((PINE & 0x40) == 0x40);
-  LB_state = ((PINE & 0x80) == 0x80);
+  RA_state = ((PINE & 0x40) == 0x40);
+  RB_state = ((PINE & 0x80) == 0x80);
   
   // Attach interrupt functions for each encoder pin
   // to their corresponding interrupt pin. Each time
   // the value of an encoder pin changes, the program
   // pauses its routine to evaluate the triggered function.
-  attachInterrupt(5, doEncoderRB, CHANGE);
-  attachInterrupt(4, doEncoderRA, CHANGE);
-  attachInterrupt(6, doEncoderLA, CHANGE);
-  attachInterrupt(7, doEncoderLB, CHANGE);
+  attachInterrupt(5, doEncoderLB, CHANGE);
+  attachInterrupt(4, doEncoderLA, CHANGE);
+  attachInterrupt(6, doEncoderRA, CHANGE);
+  attachInterrupt(7, doEncoderRB, CHANGE);
+  
   
   // Set motor control pins to be outputs
   pinMode(MOTOR_RIGHT_FORWARD, OUTPUT);
   pinMode(MOTOR_RIGHT_BACKWARD, OUTPUT);
   pinMode(MOTOR_LEFT_FORWARD, OUTPUT);
   pinMode(MOTOR_LEFT_BACKWARD, OUTPUT);
+  
+  servo.attach(SERVO_PIN);
 }
 
-void msmLoop(){
+void bupigoLoop(){
     updatePose();
 
     last_encoder_pos_left = encoder_pos_left;

@@ -1,3 +1,5 @@
+#include <ServoTimer2.h>
+
 /*********************************************************************
  *  
     SerialArduinoBridge - Adapted from ROSArduinoBridge for various robot platforms at Memorial University
@@ -6,23 +8,25 @@
     Andrew Vardy
 */
 
-#define USE_MSM      // Enable the MinSegMega code
-//#undef USE_MSM     // Disable the MinSegMega code
+#define USE_BUPIGO    // Enable the BuPiGo code
+//#undef USE_BUPIGO     // Disable the BuPiGo code
 
 //#define USE_RTBOT      // Enable the RTbot code
 #undef USE_RTBOT     // Disable the RTbot code
 
-//#define USE_STEPPER_INTERRUPT      // Enable the RTbot to utilize interrupts to update stepper_pos_left and stepper_pos_right
-#undef USE_STEPPER_INTERRUPT     // Disable stepper interrupt code
-
 //#define USE_ARBOT      // Enable the ARbot code
 #undef USE_ARBOT     // Disable the ARbot code
 
-//#define USE_PIXY      // Enable the Pixy code
-#undef USE_PIXY     // Disable the Pixy code
+#define USE_PIXY      // Enable the Pixy code
+//#undef USE_PIXY     // Disable the Pixy code
 
 //#define USE_BASE      // Enable the base controller code
 #undef USE_BASE     // Disable the base controller code
+
+// We are moving away from the original general-purpose Arduino interface functionality of ROSArduinoBridge.
+// Enable to utilize this stuff.
+//#define USE_ORIGINAL
+#undef USE_ORIGINAL
 
 /* Define the motor controller and encoder library you are using */
 #ifdef USE_BASE
@@ -36,8 +40,8 @@
    #define ROBOGAIA
 #endif
 
-#define USE_SERVOS  // Enable use of PWM servos as defined in servos.h
-//#undef USE_SERVOS     // Disable use of PWM servos
+//#define USE_SERVOS  // Enable use of PWM servos as defined in servos.h
+#undef USE_SERVOS     // Disable use of PWM servos
 
 /* Serial port baud rate */
 #define BAUDRATE     57600
@@ -67,9 +71,9 @@
    #include "servos.h"
 #endif
 
-/* Include MinSegMega support if required */
-#ifdef USE_MSM
-  #include "minsegmega.h"
+/* Include BuPiGo support if required */
+#ifdef USE_BUPIGO
+  #include "bupigo.h"
 #endif
 
 /* Include RTbot support if required */
@@ -164,6 +168,8 @@ int runCommand() {
   case GET_BAUDRATE:
     Serial.println(BAUDRATE);
     break;
+
+#ifdef USE_ORIGINAL
   case ANALOG_READ:
     Serial.println(analogRead(arg1));
     break;
@@ -187,16 +193,30 @@ int runCommand() {
   case PING:
     Serial.println(Ping(arg1));
     break;
-#ifdef USE_MSM
-  case MSM_READ_ODOMETRY:
-    Serial.print(msmGetX());
+#endif
+
+#ifdef USE_BUPIGO
+  case BUPIGO_READ_ODOMETRY:
+    Serial.print(bupigoGetX());
     Serial.print(" ");
-    Serial.print(msmGetY());
+    Serial.print(bupigoGetY());
     Serial.print(" ");
-    Serial.println(msmGetTheta());
+    Serial.println(bupigoGetTheta());
     break;
-  case MSM_SET_MOTORS:
-    msmSetMotors(arg1);
+  case BUPIGO_SET_MOTORS:
+    bupigoSetMotors(arg1);
+    Serial.println("OK");
+    break;
+  case BUPIGO_SET_SPEEDS:
+    bupigoSetSpeeds(arg1, arg2);
+    Serial.println("OK");
+    break;
+  case BUPIGO_SET_VELOCITY:
+    bupigoSetVelocity(arg1, arg2);
+    Serial.println("OK");
+    break;
+  case BUPIGO_SET_SERVO_ANGLE:
+    bupigoSetServoAngle(arg1);
     Serial.println("OK");
     break;
 #endif
@@ -313,9 +333,9 @@ void setup() {
   arbotSetup();
 #endif
 
-// Initialize the MinSegMegabot if used */
-#ifdef USE_MSM
-  msmSetup();
+// Initialize the BuPiGo if used */
+#ifdef USE_BUPIGO
+  bupigoSetup();
 #endif
 
 // Initialize the Pixy if used */
@@ -383,9 +403,9 @@ void loop() {
     }
   }
 
-// If we are using the MinSegMega, run its own required inner loop
-#ifdef USE_MSM
-  msmLoop();
+// If we are using the BuPiGo, run its own required inner loop
+#ifdef USE_BUPIGO
+  bupigoLoop();
 #endif
   
 // If we are using the RTbot, run its own required inner loop

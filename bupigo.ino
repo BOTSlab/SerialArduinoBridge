@@ -89,8 +89,8 @@ long bupigoGetTheta() {
 }
 
 void bupigoSetMotors(long dir) {
-  Serial.print("dir: ");
-  Serial.println(dir);
+  Serial3.print("dir: ");
+  Serial3.println(dir);
   
   switch(dir){
     case 0: // Stop
@@ -234,7 +234,7 @@ void doEncoderLB(){
 }
 
 void bupigoSetup(){
-  // Set initial state for right encoder
+  // Set initial state for left encoder
   pinMode(encoderPin_LA, INPUT);
   pinMode(encoderPin_LB, INPUT);
   LA_state = digitalRead(encoderPin_LA);

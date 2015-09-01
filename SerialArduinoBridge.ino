@@ -166,128 +166,128 @@ int runCommand() {
   
   switch(cmd) {
   case GET_BAUDRATE:
-    Serial.println(BAUDRATE);
+    Serial3.println(BAUDRATE);
     break;
 
 #ifdef USE_ORIGINAL
   case ANALOG_READ:
-    Serial.println(analogRead(arg1));
+    Serial3.println(analogRead(arg1));
     break;
   case DIGITAL_READ:
-    Serial.println(digitalRead(arg1));
+    Serial3.println(digitalRead(arg1));
     break;
   case ANALOG_WRITE:
     analogWrite(arg1, arg2);
-    Serial.println("OK"); 
+    Serial3.println("OK"); 
     break;
   case DIGITAL_WRITE:
     if (arg2 == 0) digitalWrite(arg1, LOW);
     else if (arg2 == 1) digitalWrite(arg1, HIGH);
-    Serial.println("OK"); 
+    Serial3.println("OK"); 
     break;
   case PIN_MODE:
     if (arg2 == 0) pinMode(arg1, INPUT);
     else if (arg2 == 1) pinMode(arg1, OUTPUT);
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
   case PING:
-    Serial.println(Ping(arg1));
+    Serial3.println(Ping(arg1));
     break;
 #endif
 
 #ifdef USE_BUPIGO
   case BUPIGO_READ_ODOMETRY:
-    Serial.print(bupigoGetX());
-    Serial.print(" ");
-    Serial.print(bupigoGetY());
-    Serial.print(" ");
-    Serial.println(bupigoGetTheta());
+    Serial3.print(bupigoGetX());
+    Serial3.print(" ");
+    Serial3.print(bupigoGetY());
+    Serial3.print(" ");
+    Serial3.println(bupigoGetTheta());
     break;
   case BUPIGO_SET_MOTORS:
     bupigoSetMotors(arg1);
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
   case BUPIGO_SET_SPEEDS:
     bupigoSetSpeeds(arg1, arg2);
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
   case BUPIGO_SET_VELOCITY:
     bupigoSetVelocity(arg1, arg2);
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
   case BUPIGO_SET_SERVO_ANGLE:
     bupigoSetServoAngle(arg1);
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
 #endif
 #ifdef USE_RTBOT
   case RTBOT_READ_ODOMETRY:
-    Serial.print(rtbotGetX());
-    Serial.print(" ");
-    Serial.print(rtbotGetY());
-    Serial.print(" ");
-    Serial.println(rtbotGetTheta());
+    Serial3.print(rtbotGetX());
+    Serial3.print(" ");
+    Serial3.print(rtbotGetY());
+    Serial3.print(" ");
+    Serial3.println(rtbotGetTheta());
     break;
   case RTBOT_SET_MOTORS:
     rtbotSetMotors(arg1);
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
 #endif
 #ifdef USE_ARBOT
   case ARBOT_READ_ODOMETRY:
-    Serial.print(arbotGetX());
-    Serial.print(" ");
-    Serial.print(arbotGetY());
-    Serial.print(" ");
-    Serial.println(arbotGetTheta());
+    Serial3.print(arbotGetX());
+    Serial3.print(" ");
+    Serial3.print(arbotGetY());
+    Serial3.print(" ");
+    Serial3.println(arbotGetTheta());
     break;
   case ARBOT_SET_ADVANCE_LED:
     arbotSetAdvanceLed(arg1);
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
   case ARBOT_SET_VELOCITY:
     arbotSetVelocity(arg1, arg2);
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
 #endif
 #ifdef USE_PIXY
   case GET_PIXY_BLOB_COUNT:
-    Serial.println(getPixyBlobCount());
-    Serial.println("OK");
+    Serial3.println(getPixyBlobCount());
+    Serial3.println("OK");
     break;
   case GET_BLOB_AT_INDEX:
-    Serial.print(getBlobType(arg1));
-    Serial.print(" ");
-    Serial.print(getBlobX(arg1));
-    Serial.print(" ");
-    Serial.print(getBlobY(arg1));
-    Serial.print(" ");
-    Serial.print(getBlobWidth(arg1));
-    Serial.print(" ");
-    Serial.println(getBlobHeight(arg1));
+    Serial3.print(getBlobType(arg1));
+    Serial3.print(" ");
+    Serial3.print(getBlobX(arg1));
+    Serial3.print(" ");
+    Serial3.print(getBlobY(arg1));
+    Serial3.print(" ");
+    Serial3.print(getBlobWidth(arg1));
+    Serial3.print(" ");
+    Serial3.println(getBlobHeight(arg1));
     break;
 #endif
     
 #ifdef USE_SERVOS
   case SERVO_WRITE:
     servos[arg1].write(arg2);
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
   case SERVO_READ:
-    Serial.println(servos[arg1].read());
+    Serial3.println(servos[arg1].read());
     break;
 #endif
     
 #ifdef USE_BASE
   case READ_ENCODERS:
-    Serial.print(readEncoder(LEFT));
-    Serial.print(" ");
-    Serial.println(readEncoder(RIGHT));
+    Serial3.print(readEncoder(LEFT));
+    Serial3.print(" ");
+    Serial3.println(readEncoder(RIGHT));
     break;
    case RESET_ENCODERS:
     resetEncoders();
     resetPID();
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
   case MOTOR_SPEEDS:
     /* Reset the auto stop timer */
@@ -299,7 +299,7 @@ int runCommand() {
     else moving = 1;
     leftPID.TargetTicksPerFrame = arg1;
     rightPID.TargetTicksPerFrame = arg2;
-    Serial.println("OK"); 
+    Serial3.println("OK"); 
     break;
   case UPDATE_PID:
     while ((str = strtok_r(p, ":", &p)) != '\0') {
@@ -310,18 +310,18 @@ int runCommand() {
     Kd = pid_args[1];
     Ki = pid_args[2];
     Ko = pid_args[3];
-    Serial.println("OK");
+    Serial3.println("OK");
     break;
 #endif
   default:
-    Serial.println("Invalid Command");
+    Serial3.println("Invalid Command");
     break;
   }
 }
 
 /* Setup function--runs once at startup. */
 void setup() {
-  Serial.begin(BAUDRATE);
+  Serial3.begin(BAUDRATE);
   
 // Initialize the RTbot if used */
 #ifdef USE_RTBOT
@@ -363,10 +363,10 @@ void setup() {
    interval and check for auto-stop conditions.
 */
 void loop() {
-  while (Serial.available() > 0) {
+  while (Serial3.available() > 0) {
     
     // Read the next character
-    chr = Serial.read();
+    chr = Serial3.read();
 
     // Terminate a command with a CR
     if (chr == 13) {

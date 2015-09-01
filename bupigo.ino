@@ -19,6 +19,11 @@ double DISTANCE_PER_STEP = WHEEL_RADIUS_MM * RADIANS_PER_STEP;
 double BASELINE_MM = 103.0;
 double HALF_BASELINE_MM = BASELINE_MM / 2.0;
 
+// Maximum speed achievable per-wheel when the robot is being driven
+// forward at 1000 mm/s and simultaneously rotating at 1 rad/s.
+//double MAX_SPEED = (1000 + HALF_BASELINE_MM) / WHEEL_RADIUS_MM;
+double MAX_SPEED = 1000 / WHEEL_RADIUS_MM;
+
 // Pin ID's for setting motors
 int MOTOR_LEFT_FORWARD = 44;  // Right motor Forward (M1)
 int MOTOR_LEFT_BACKWARD = 45; // Right motor Reverse (M2)
@@ -143,11 +148,18 @@ void bupigoSetVelocity(long forwardSpeed, long angularSpeed) {
   double v = forwardSpeed; // Forward speed in mm / sec
   double w = angularSpeed / 1000.0; // Angular speed in radians / sec
   
-  // Apply differential-drive kinematic model.
-  long leftVelocity = (long)( (v - HALF_BASELINE_MM * w) / WHEEL_RADIUS_MM);
-  long rightVelocity = (long)( (v + HALF_BASELINE_MM * w) / WHEEL_RADIUS_MM);
+  // Apply differential-drive kinematic model to obtain wheel speeds
+  // in mm / sec.
+  double leftSpeed = (v - HALF_BASELINE_MM * w) / WHEEL_RADIUS_MM;
+  double rightSpeed = (v + HALF_BASELINE_MM * w) / WHEEL_RADIUS_MM;
 
-  bupigoSetSpeeds(leftVelocity, rightVelocity);
+  // Convert to integer values in the range +/- 255
+  int leftSpeedPWM = (int)( 255 * leftSpeed / MAX_SPEED );
+  int rightSpeedPWM = (int)( 255 * rightSpeed / MAX_SPEED );
+  leftSpeedPWM = constrain(leftSpeedPWM, -255, 255);
+  rightSpeedPWM = constrain(rightSpeedPWM, -255, 255);
+
+  bupigoSetSpeeds(leftSpeedPWM, rightSpeedPWM);
 }
 
 void bupigoSetServoAngle(long angle) {

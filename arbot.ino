@@ -1,11 +1,9 @@
 #ifdef USE_ARBOT
 
-/* Adapted from ARbot_ROS which used rosserial to control the robot.  Unfortunately, issues with
- * rosserial forced us to abandon that development and focus on this integration with ROSArduinoBridge.
- *
- * The ARbot consists of an iRobot Create with a connected arduino_irobot_bridge, which is connected to 
+/* 
+ * The ARbot consists of an iRobot Create with a connected
+ * arduino_irobot_bridge, which is connected to 
  * an Arduino variant, the MinSegMega (from www.minseg.com).
- *
  */
 
 #include <LiquidCrystal.h>
@@ -88,9 +86,8 @@ void updateXY() {
   bool ret = roomba.getSensors(Roomba::SensorDistance, roombaBuffer, 2);
   double distance = roombaBuffer[1] + 256 * roombaBuffer[0];
   
-  // The distance reported by the robot is in mm.  Also, since the arbot's forward
-  // axis is inverted we will negate this distance.
-  distance *= -1.0/1000.0;
+  // The distance reported by the robot is in mm.
+  distance *= 1.0/1000.0;
   
   // We use a partially updated theta value to better reflect movement over the
   // whole of the sampling period.
@@ -163,16 +160,16 @@ void arbotLoop(){
 //  handleIRSeeker();
 }
 
-long arbotGetX() {
-  return (long)(x * 1000);
+double arbotGetX() {
+  return x;
 }
 
-long arbotGetY() {
-  return (long)(y * 1000);
+double arbotGetY() {
+  return y;
 }
 
-long arbotGetTheta() {
-  return (long)(theta * 1000);
+double arbotGetTheta() {
+  return theta;
 }
 
 void arbotSetAdvanceLed(long value) {
@@ -183,16 +180,12 @@ void arbotSetAdvanceLed(long value) {
   roomba.leds(ledBits, 0, 0);
 }
 
-void arbotSetVelocity(long forwardSpeed, long angularSpeed) {
-  double v = forwardSpeed; // Forward speed in mm / sec
-  double w = angularSpeed / 1000.0; // Angular speed in radians / sec
-  
-  // Apply differential-drive kinematic model.  Left and right are swapped and negated 
-  // here because we define forwards as the direction of the gripper, not the bumper.
-  // Also, we do not divide by the wheel radius because the 'driveDirect' command below
+void arbotSetVelocity(double v, long w) {
+  // Apply differential-drive kinematic model. We do not divide by the wheel
+  // radius because the 'driveDirect' command below
   // actually expects wheel roll speeds, not rates of rotation.
-  int16_t leftVelocity = -(v + HALF_BASELINE * w); // / WHEEL_RADIUS;
-  int16_t rightVelocity = -(v - HALF_BASELINE * w); // / WHEEL_RADIUS;
+  int16_t leftVelocity = (v - HALF_BASELINE * w); // / WHEEL_RADIUS;
+  int16_t rightVelocity = (v + HALF_BASELINE * w); // / WHEEL_RADIUS;
 
   /*
   lcd.clear();

@@ -12,5 +12,5 @@ long arbotGetTheta();
 // Set the state of the LED next to the advance button on the iRobot Create.  0 = off and 1 = on.
 void arbotSetAdvanceLed(long intensity);
 
-// Set the forward and angular speeds in units of mm / sec and radians / 1000 seconds
-void arbotSetVelocity(long forwardSpeed, long angularSpeed);
+// Set the forward and angular speeds in units of mm / sec and radians / seconds
+void arbotSetVelocity(double forwardSpeed, double angularSpeed);

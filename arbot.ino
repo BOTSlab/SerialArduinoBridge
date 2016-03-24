@@ -1,5 +1,3 @@
-#ifdef USE_ARBOT
-
 /* 
  * The ARbot consists of an iRobot Create with a connected
  * arduino_irobot_bridge, which is connected to 
@@ -107,7 +105,7 @@ void handleIRSeeker() {
 
 void arbotSetup(){
   lcd.begin(16, 2);
-  lcd.print("RAB 1.1");
+  lcd.print("aggregate 1.0");
   lcd.setCursor(0, 1);
   lcd.print("Do not move bot!");
   
@@ -180,7 +178,7 @@ void arbotSetAdvanceLed(long value) {
   roomba.leds(ledBits, 0, 0);
 }
 
-void arbotSetVelocity(double v, long w) {
+void arbotSetVelocity(double v, double w) {
   // Apply differential-drive kinematic model. We do not divide by the wheel
   // radius because the 'driveDirect' command below
   // actually expects wheel roll speeds, not rates of rotation.
@@ -197,4 +195,8 @@ void arbotSetVelocity(double v, long w) {
   roomba.driveDirect(leftVelocity, rightVelocity);
 }
 
-#endif
+boolean arbotPlayPressed() {
+  bool ret = roomba.getSensors(Roomba::SensorButtons, roombaBuffer, 1);
+  return roombaBuffer[0];
+}
+

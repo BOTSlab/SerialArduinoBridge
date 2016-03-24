@@ -13,6 +13,7 @@
 #include "arbot.h"
 
 void setup() {
+  printf("Setup\n");
   
     // Initialize the ARbot if used
     arbotSetup();
